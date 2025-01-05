@@ -35,7 +35,7 @@ if __name__ == "__main__":
 # from openai import OpenAI
 
 # client = OpenAI(
-#   api_key="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"
+#   api_key="api-key"
 # )
 
 # completion = client.chat.completions.create(
