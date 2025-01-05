@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #chat-container {
+            width: 50%;
+            max-width: 600px;
+            min-width: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        #chatbox {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #fafafa;
+            border-bottom: 1px solid #ddd;
+        }
+        .message {
+            margin: 10px 0;
+        }
+        .user-message {
+            text-align: right;
+            color: #333;
+        }
+        .bot-message {
+            text-align: left;
+            color: #555;
+        }
+        #input-container {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+        #textInput {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+        #sendButton {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #sendButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chatbox">
+            <p class="bot-message"><strong>Bot:</strong> Hi! I'm your AI chatbot. Ask me anything!</p>
+        </div>
+        <div id="input-container">
+            <input id="textInput" type="text" placeholder="Type your message here..." />
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+    <script>
+        function sendMessage() {
+            const userMessage = $("#textInput").val().trim();
+            if (!userMessage) return;
+
+            // Display user message
+            const userHtml = `<p class="message user-message"><strong>You:</strong> ${userMessage}</p>`;
+            $("#chatbox").append(userHtml);
+
+            // Clear input field
+            $("#textInput").val("");
+
+            // Send message to Flask server
+            $.get("/get_response", { msg: userMessage })
+                .done(function(data) {
+                    if (data.response) {
+                        const botHtml = `<p class="message bot-message"><strong>Bot:</strong> ${data.response}</p>`;
+                        $("#chatbox").append(botHtml);
+                    } else {
+                        const errorHtml = `<p class="message bot-message"><strong>Bot:</strong> Oops! Something went wrong.</p>`;
+                        $("#chatbox").append(errorHtml);
+                    }
+                })
+                .fail(function() {
+                    const errorHtml = `<p class="message bot-message"><strong>Bot:</strong> Unable to connect to the server.</p>`;
+                    $("#chatbox").append(errorHtml);
+                });
+
+            // Scroll to the bottom
+            $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+        }
+
+        // Send message on button click or Enter key press
+        $("#sendButton").click(sendMessage);
+        $("#textInput").keypress(function(e) {
+            if (e.which === 13) sendMessage();
+        });
+    </script>
+</body>
+</html>
